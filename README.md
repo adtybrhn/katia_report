@@ -28,7 +28,6 @@ Langkah ini hanya perlu dilakukan sekali untuk mengubah *script* JS menjadi apli
    ```bash
    npm install jspdf jspdf-autotable commander
 Build aplikasi menjadi executable (.exe):
-
    Bash
    npx pkg . --targets node18-win-x64 --output portable_report.exe
 

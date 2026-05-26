@@ -64,6 +64,19 @@ public static void login() {
     } else {
         PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
 ```
+lalu tambahkan add result untuk mengetahui jumlah hasil yang gagal maupun berhasil :
+```
+try {
+	Login.openBrowser()
+	Login.login()
+
+	PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
+} catch (Exception e) {
+
+	PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
+	KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
+}
+```
 ### Selesai! 
 Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses. 
     }

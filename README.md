@@ -34,7 +34,6 @@ Bash
 npx pkg . --targets node18-win-x64 --output portable_report.exe
 
 ### Tahap 2: Buat Custom Keyword di Katalon
-
 Buat file Groovy baru di direktori Keywords/com/report/PortableReporter.groovy. Keyword ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
 
 Groovy

@@ -1,32 +1,83 @@
-# Katalon Studio Custom PDF Report Engine
+# Katalon Custom PDF Report Engine
 
-Engine pelapor kustom (*custom report engine*) berbasis **Node.js (jsPDF)** dan **Katalon Studio (Groovy)** untuk menghasilkan laporan eksekusi pengujian otomatis (*automated testing report*) berkelas *Enterprise*. 
+## 📖 Penjelasan Proyek
+**Katalon Custom PDF Report Engine** adalah sistem pelaporan otomatis (*automated reporting system*) independen yang dirancang untuk mengubah data hasil pengujian Katalon Studio menjadi dokumen PDF profesional berkelas *Enterprise*.
 
-Engine ini dirancang khusus untuk mendukung pengujian skala besar (*multiple test cases* melalui Test Suite) serta memiliki kecerdasan **Hybrid Layout** yang mampu mengatur tata letak tangkapan layar perangkat Web (Landscape) maupun Mobile (Portrait) secara otomatis tanpa merusak rasio gambar (*anti-gepeng*).
+Proyek ini dibangun menggunakan **Node.js (jsPDF)** dan bertindak sebagai jembatan eksternal dari Katalon. Sistem ini sangat cocok untuk:
+* **Pengujian Skala Besar**: Dirancang khusus untuk membaca hasil dari banyak *Test Case* sekaligus dalam satu *Test Suite*.
+* **Pengujian Multi-Platform (Hybrid)**: Memiliki kecerdasan tata letak otomatis (*auto-scaling*) yang mendeteksi rasio gambar. Tangkapan layar web (landscape) akan dirender penuh, sementara tangkapan layar *mobile device* (portrait) akan dirender atas-bawah secara proporsional agar muat 2 gambar per halaman tanpa membuat gambar menjadi gepeng.
+* **Standar Laporan Profesional**: Dilengkapi *Table of Contents* (Daftar Isi) dinamis anti-tabrak, *dashboard summary*, desain kop minimalis, serta penomoran halaman otomatis.
 
 ---
 
 ## 🚀 Fitur Utama
-
-* **Zero-Dependency Executive Executable (`.exe`)**: Dikompilasi menggunakan `pkg` sehingga dapat dijalankan langsung di mesin mana pun (misal: Windows Runner / CI-CD pipeline) tanpa perlu menginstal Node.js secara lokal.
-* **Corporate Color Palette Theme**: Desain profesional minimalis menggunakan tema warna biru *navy* elegan, lengkap dengan *global header* dan *footer* (penomoran halaman dinamis otomatis di luar halaman Cover).
-* **Table of Contents (TOC) Dinamis Multi-Halaman**: Otomatis menghitung kedalaman halaman laporan, menggunakan penanda titik-titik klasik (*dot leaders*) menuju nomor halaman, serta aman dari *bug text-overlapping* saat daftar bab meluber lebih dari 1 halaman.
-* **Smart Dashboard Execution Card**: Dilengkapi metrik visual modern berbentuk *rounded cards* untuk merangkum jumlah status pengujian (**TOTAL**, **PASSED**, dan **FAILED**).
-* **Smart Screenshot Vertical Auto-Scaling**: Otomatis mendeteksi dimensi asli gambar. Untuk tangkapan layar *mobile device* (portrait), engine akan menyusun **2 gambar secara vertikal (atas-bawah) per halaman** dan memposisikannya tepat di tengah halaman (*center aligned*).
-* **Clean Layout Extension**: Kepala tabel (*table head*) detail eksekusi otomatis hanya muncul di halaman pertama saja (*show head on first page*) untuk mencegah visual yang terlalu rapat dan tumpang tindih dengan garis pembatas atas.
+* **Plug-and-Play Executable (`.exe`)**: Engine telah dikompilasi menjadi *file* `.exe` yang siap pakai. Mesin *runner* (seperti komputer rekan tim atau server CI/CD) sama sekali tidak perlu menginstal Node.js atau melakukan konfigurasi *environment*.
+* **Smart Layout Engine**: Secara dinamis menghitung tinggi teks dan gambar untuk mencegah baris yang terpotong ke halaman berikutnya.
+* **Corporate Theme**: Menggunakan palet warna profesional (Navy Blue dan Charcoal) dengan garis batas yang rapi.
 
 ---
 
-## 🛠️ Alur Arsitektur Sistem
+## 🛠️ Step-by-Step Cara Penggunaan
 
-```text
-[Katalon Test Suite] 
-       │
-       ▼
-[addTestResult() / Capture Screenshot] ──► Disimpan ke Memori Sementara (List<Map>)
-       │
-       ▼ (Setelah seluruh Test Case selesai)
-[ReportingListener (AfterTestSuite)]  ──► Menghasilkan 'result.json'
-       │
-       ▼
-[portable_report.exe (CLI Trigger)]   ──► Membaca JSON & Menghasilkan Dokumen PDF Premium
+### Tahap 1: Setup Engine
+1. Buat folder baru bernama `portable_report` di dalam direktori proyek Katalon Anda.
+2. Salin *file* `portable_report.exe` yang ada di repositori ini, lalu letakkan ke dalam folder tersebut.
+
+### Tahap 2: Gunakan Helper Class (PortableReporter)
+Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **salin *file* `PortableReporter.groovy`** dari repositori ini, lalu letakkan ke dalam folder `Include/scripts/groovy/(default package)` pada proyek Katalon Anda.
+
+**Penjelasan Fungsi Utama:**
+* **`addTestResult(id, name, status)`**: Fungsi ini bertugas untuk menangkap data hasil akhir dari sebuah *Test Case* (misal: ID Test, Nama Test, dan status `PASSED`/`FAILED`), lalu menyimpannya ke dalam memori antrean sebelum diekspor menjadi file JSON.
+* **Fungsi Tangkapan Layar (Screenshot)**: Sistem ini mendukung perekaman langkah visual. Di dalam helper class, terdapat *method* khusus yang dapat diisi dengan nama tindakan (*action*), data input, harapan (*expected result*), dan statusnya (sukses/gagal). *Engine* akan membaca *path* *screenshot* tersebut secara otomatis dan merendernya ke dalam PDF dengan proporsi yang presisi.
+
+### Tahap 3: Pasang Test Listener
+Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `ReportingListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
+
+*Listener* ini memiliki dua tugas utama:
+1. Membersihkan memori hasil *test* usang sebelum *Test Suite* baru dimulai.
+2. Men- *trigger* eksekusi `portable_report.exe` tepat satu kali di bagian akhir *Test Suite* untuk merender seluruh hasil JSON menjadi satu dokumen PDF lengkap.
+
+### Tahap 4: Implementasi ke dalam Test Case
+Tulis *script* pengujian Anda dengan rapi. Sistem ini dirancang untuk mendukung gaya penulisan yang bersih (*fluent api style*). Anda bisa langsung menyisipkan fungsi penangkap *screenshot* dan melampirkan statusnya (`.PASSED` / `.FAILED`) tepat setelah tindakan dilakukan di UI.
+
+Berikut adalah contoh implementasinya pada fungsi `login`:
+
+```groovy
+public static void login() {
+    String username = 'standard_user'
+    String password = 'secret_sauce'
+    
+    // 1. Input Username & Rekam Bukti
+    WebUI.setText(textbox_username, username)
+    PortableReporterScreenshot("Input Username", "standard_user", "Text username terisi").PASSED
+
+    // 2. Input Password & Rekam Bukti
+    WebUI.setText(textbox_password, password)
+    PortableReporterScreenshot("Input Password", "secret_sauce", "Text password terisi").PASSED
+
+    // 3. Eksekusi Login
+    WebUI.click(btn_login)
+    
+    // 4. Verifikasi Akhir
+    if (WebUI.verifyElementPresent(dashboard_logo, 5, FailureHandling.OPTIONAL)) {
+        PortableReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
+    } else {
+        PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
+```
+lalu tambahkan add result untuk mengetahui jumlah hasil yang gagal maupun berhasil :
+```
+try {
+	Login.openBrowser()
+	Login.login()
+
+	PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
+} catch (Exception e) {
+
+	PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
+	KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
+}
+```
+### Selesai! 
+Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses. 
+    }
+}

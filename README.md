@@ -174,17 +174,23 @@ Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite seles
    import com.kms.katalon.core.annotation.BeforeTestSuite
    import com.kms.katalon.core.annotation.AfterTestSuite
    import com.kms.katalon.core.context.TestSuiteContext
-   import com.report.PortableReporter
    
    class ReportingListener {
+   	
+       // Dijalankan SEBELUM Test Suite dimulai
        @BeforeTestSuite
        def clearOldData(TestSuiteContext testSuiteContext) {
-           PortableReporter.testResults.clear() // Bersihkan sisa tes sebelumnya
+           // Hapus sisa memori dari pengujian sebelumnya agar PDF benar-benar bersih
+           PortableReporter.testResults.clear()
+           PortableReporter.currentSteps.clear()
+           println("[+] Memori dibersihkan. Memulai Test Suite...")
        }
    
+       // Dijalankan SETELAH seluruh Test Case di dalam Test Suite selesai
        @AfterTestSuite
        def generateFinalReport(TestSuiteContext testSuiteContext) {
-           PortableReporter.generatePDFReport() // Cetak PDF gabungan
+           // Cetak 1 PDF raksasa yang berisi seluruh hasil Test Case
+           PortableReporter.generatePDFReport()
        }
    }
 ```
@@ -192,6 +198,29 @@ Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite seles
 ### Tahap 4: Implementasi ke dalam Test Case
 Tulis script pengujian Anda seperti biasa. Gunakan blok try-catch untuk menandai akhir dari pengujian Anda, lalu panggil metode dari helper class Groovy yang sudah dibuat.
 
+Screenshot
+```
+	public static void login() {
+		String username = 'standard_user'
+		String password = 'secret_sauce'
+		
+		WebUI.setText(textbox_username, username)
+		PortableReporterScreenshot("Input Username", "standard_user", "Text username terisi").PASSED
+
+		WebUI.setText(textbox_password, password)
+		PortableReporterScreenshot("Input Password", "secret_sauce", "Text password terisi").PASSED
+
+		WebUI.click(btn_login)
+		
+		if (WebUI.verifyElementPresent(dashboard_logo, 5, FailureHandling.OPTIONAL)) {
+			PortableReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
+		} else {
+			PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
+		}
+	}
+```
+
+Add Result
 ```
    import com.kms.katalon.core.util.KeywordUtil
    import com.report.PortableReporter
@@ -208,7 +237,8 @@ Tulis script pengujian Anda seperti biasa. Gunakan blok try-catch untuk menandai
    }
 ```
 
-Selesai! Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
+### Selesai! 
+Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
 
 🚫 Konfigurasi Tambahan (.gitignore)
 Jika Anda melakukan push proyek ini ke repositori, pastikan untuk menambahkan file .gitignore agar pustaka Node.js yang berat tidak ikut ter-upload:

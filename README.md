@@ -32,7 +32,9 @@ Build aplikasi menjadi executable (.exe):
 
 Bash
 npx pkg . --targets node18-win-x64 --output portable_report.exe
-Tahap 2: Buat Custom Keyword di Katalon
+
+### Tahap 2: Buat Custom Keyword di Katalon
+
 Buat file Groovy baru di direktori Keywords/com/report/PortableReporter.groovy. Keyword ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
 
 Groovy
@@ -84,7 +86,8 @@ class PortableReporter {
         println("[V] Laporan PDF Dibuat: " + dynamicFileName)
     }
 }
-Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
+
+### Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
 Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite selesai, buat file ReportingListener.groovy di folder Test Listeners.
 
 Groovy
@@ -104,7 +107,8 @@ class ReportingListener {
         PortableReporter.generatePDFReport() // Cetak PDF gabungan
     }
 }
-Tahap 4: Implementasi ke dalam Test Case
+
+### Tahap 4: Implementasi ke dalam Test Case
 Tulis script pengujian Anda seperti biasa. Gunakan blok try-catch untuk menandai akhir dari pengujian Anda dan mengirimkan hasilnya ke memori.
 
 Groovy
@@ -121,6 +125,7 @@ try {
     PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
     KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
 }
+
 Selesai! Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
 
 🚫 Konfigurasi Tambahan (.gitignore)
@@ -131,5 +136,6 @@ node_modules/
 portable_report.exe
 result.json
 *.pdf
+
 📄 Lisensi
 Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.

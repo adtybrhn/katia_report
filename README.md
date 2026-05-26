@@ -11,7 +11,7 @@ Proyek ini dibangun menggunakan **Node.js (jsPDF)** dan bertindak sebagai jembat
 ---
 
 ## 🚀 Fitur Utama
-* **Stand-Alone Executable (`.exe`)**: Engine Node.js dapat dikompilasi menjadi *file* `.exe`, sehingga mesin *runner* (seperti server CI/CD) tidak perlu menginstal Node.js sama sekali.
+* **Plug-and-Play Executable (`.exe`)**: Engine telah dikompilasi menjadi *file* `.exe` yang siap pakai. Mesin *runner* (seperti komputer rekan tim atau server CI/CD) sama sekali tidak perlu menginstal Node.js atau melakukan konfigurasi *environment*.
 * **Smart Layout Engine**: Secara dinamis menghitung tinggi teks dan gambar untuk mencegah baris yang terpotong ke halaman berikutnya.
 * **Corporate Theme**: Menggunakan palet warna profesional (Navy Blue dan Charcoal) dengan garis batas yang rapi.
 
@@ -19,234 +19,49 @@ Proyek ini dibangun menggunakan **Node.js (jsPDF)** dan bertindak sebagai jembat
 
 ## 🛠️ Step-by-Step Cara Penggunaan
 
-### Tahap 1: Setup & Kompilasi Engine (Node.js)
-Langkah ini hanya perlu dilakukan sekali untuk mengubah *script* JS menjadi aplikasi mandiri.
-1. Pastikan **Node.js** terinstal di komputer Anda.
-2. Buat folder baru bernama `portable_report` di dalam direktori proyek Katalon Anda.
-3. Masukkan *file* `index.js` dan `package.json` Anda ke folder tersebut.
-4. Buka terminal (Git Bash / CMD) di dalam folder `portable_report` dan jalankan instalasi *library*:
-   ```bash
-   npm install jspdf jspdf-autotable commander
-Build aplikasi menjadi executable (.exe):
-   ```Bash
-   npx pkg . --targets node18-win-x64 --output portable_report.exe
-   ```
-### Tahap 2: Buat Helper Class di Scripts Groovy
-Buat folder dan file Groovy baru di direktori Include/scripts/groovy/com/report/PortableReporter.groovy. Class murni ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
-   ```
-   import com.kms.katalon.core.annotation.Keyword
-   import com.kms.katalon.core.configuration.RunConfiguration
-   import groovy.json.JsonOutput
-   
-   
-   public class PortableReporter {
-   
-   	static List<Map<String, Object>> testResults = new ArrayList<>()
-   
-   	// Memori sementara untuk menampung step-step yang berjalan di satu Test Case
-   	static List<Map<String, String>> currentSteps = new ArrayList<>()
-   
-   	// FUNGSI AJAIB YANG ANDA MINTA:
-   	public static StepRecord PortableReporterScreenshot(String action, String data, String expected) {
-   		return new StepRecord(action, data, expected)
-   	}
-   
-   	@Keyword
-   	def static addTestResult(String id, String name, String status) {
-   		Map<String, Object> result = new HashMap<>()
-   		result.put("id", id)
-   		result.put("name", name)
-   		result.put("status", status)
-   
-   		// Memasukkan riwayat langkah (steps) ke dalam Test Case ini
-   		result.put("steps", new ArrayList<>(currentSteps))
-   
-   		// Kosongkan memori steps untuk Test Case berikutnya
-   		currentSteps.clear()
-   
-   		testResults.add(result)
-   	}
-   
-   	@Keyword
-   	def static generatePDFReport() {
-   		println("[+] Memulai pembuatan JSON dan PDF Report...")
-   		String projectDir = RunConfiguration.getProjectDir()
-   
-   		// --- NAMA FILE DINAMIS DENGAN ID TEST CASE ---
-   		// Mengambil ID Test Case (TC-001) dan Nama Test Case (Verifikasi Login Valid)
-   		String testId = testResults.isEmpty() ? "TC" : testResults.get(0).id.toString().replaceAll("[^a-zA-Z0-9]", "_")
-   		String baseName = testResults.isEmpty() ? "Laporan_Test" : testResults.get(0).name.toString().replaceAll("[^a-zA-Z0-9]", "_")
-   
-   		// Membuat format Timestamp
-   		java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")
-   		String timestamp = java.time.LocalDateTime.now().format(formatter)
-   
-   		// Hasil akhir: TC_001_Verifikasi_Login_Valid_26-05-2026_12-45-02.pdf
-   		String dynamicFileName = "${testId}_${baseName}_${timestamp}.pdf"
-   		// ----------------------------------------------
-   
-   		def reportData = [
-   			"projectName": "Sauce Demo Web Application ",
-   			"framework": "Katalon Studio",
-   			"platform": "Web UI",
-   			"testDate": java.time.LocalDate.now().toString(),
-   			"summary": [
-   				"total": testResults.size(),
-   				"passed": testResults.count { it.status == 'PASSED' },
-   				"failed": testResults.count {
-   					it.status == 'FAILED'
-   				}
-   			],
-   			"results": testResults
-   		]
-   
-   		String jsonString = JsonOutput.toJson(reportData)
-   		File jsonFile = new File(projectDir + "/portable_report/result.json")
-   		jsonFile.write(jsonString)
-   
-   		def pb = new ProcessBuilder(
-   				projectDir + "/portable_report/portable_report.exe",
-   				"-i", "result.json",
-   				"-o", dynamicFileName
-   				)
-   		pb.directory(new File(projectDir + "/portable_report"))
-   		pb.redirectErrorStream(true)
-   
-   		def process = pb.start()
-   		process.waitFor()
-   
-   		println("[+] Hasil Eksekusi CLI:")
-   		println(process.text)
-   		println("[V] Laporan tersimpan dengan nama: " + dynamicFileName)
-   	}
-   }
-   
-   // KELAS PEMBANTU UNTUK MENGELOLA .PASSED / .FAILED
-   class StepRecord {
-   	String action, data, expected
-   
-   	StepRecord(String action, String data, String expected) {
-   		this.action = action
-   		this.data = data
-   		this.expected = expected
-   	}
-   
-   	// Mengembalikan objek agar editor Katalon tidak protes
-   	StepRecord getPASSED() {
-   		recordStep("PASSED")
-   		return this
-   	}
-   
-   	StepRecord getFAILED() {
-   		recordStep("FAILED")
-   		return this
-   	}
-   
-   	private void recordStep(String status) {
-   		String projectDir = RunConfiguration.getProjectDir()
-   		String timestamp = System.currentTimeMillis().toString()
-   		// Buat nama file unik agar tidak saling menimpa
-   		String fileName = action.replaceAll("[^a-zA-Z0-9]", "_") + "_" + timestamp + ".png"
-   		String screenshotPath = projectDir + "/portable_report/screenshots/" + fileName
-   
-   		try {
-   			// Ambil screenshot secara otomatis
-   			WebUI.takeScreenshot(screenshotPath)
-   		} catch (Exception e) {
-   			println("Gagal mengambil screenshot: " + e.getMessage())
-   		}
-   
-   		// Simpan data langkah ke memori
-   		Map<String, String> step = new HashMap<>()
-   		step.put("action", action)
-   		step.put("data", data)
-   		step.put("expected", expected)
-   		step.put("status", status)
-   		step.put("screenshot", screenshotPath)
-   
-   		PortableReporter.currentSteps.add(step)
-   	}
-   }
-   ```
-### Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
-Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite selesai, buat file ReportingListener.groovy di folder Test Listeners.
-```
-   import com.kms.katalon.core.annotation.BeforeTestSuite
-   import com.kms.katalon.core.annotation.AfterTestSuite
-   import com.kms.katalon.core.context.TestSuiteContext
-   
-   class ReportingListener {
-   	
-       // Dijalankan SEBELUM Test Suite dimulai
-       @BeforeTestSuite
-       def clearOldData(TestSuiteContext testSuiteContext) {
-           // Hapus sisa memori dari pengujian sebelumnya agar PDF benar-benar bersih
-           PortableReporter.testResults.clear()
-           PortableReporter.currentSteps.clear()
-           println("[+] Memori dibersihkan. Memulai Test Suite...")
-       }
-   
-       // Dijalankan SETELAH seluruh Test Case di dalam Test Suite selesai
-       @AfterTestSuite
-       def generateFinalReport(TestSuiteContext testSuiteContext) {
-           // Cetak 1 PDF raksasa yang berisi seluruh hasil Test Case
-           PortableReporter.generatePDFReport()
-       }
-   }
-```
+### Tahap 1: Setup Engine
+1. Buat folder baru bernama `portable_report` di dalam direktori proyek Katalon Anda.
+2. Salin *file* `portable_report.exe` yang ada di repositori ini, lalu letakkan ke dalam folder tersebut.
+
+### Tahap 2: Gunakan Helper Class (PortableReporter)
+Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **salin *file* `PortableReporter.groovy`** dari repositori ini, lalu letakkan ke dalam folder `Include/scripts/groovy/com/report/` pada proyek Katalon Anda.
+
+**Penjelasan Fungsi Utama:**
+* **`addTestResult(id, name, status)`**: Fungsi ini bertugas untuk menangkap data hasil akhir dari sebuah *Test Case* (misal: ID Test, Nama Test, dan status `PASSED`/`FAILED`), lalu menyimpannya ke dalam memori antrean sebelum diekspor menjadi file JSON.
+* **Fungsi Tangkapan Layar (Screenshot)**: Sistem ini mendukung perekaman langkah visual. Di dalam helper class, terdapat *method* khusus yang dapat diisi dengan nama tindakan (*action*), data input, harapan (*expected result*), dan statusnya (sukses/gagal). *Engine* akan membaca *path* *screenshot* tersebut secara otomatis dan merendernya ke dalam PDF dengan proporsi yang presisi.
+
+### Tahap 3: Pasang Test Listener
+Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `ReportingListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
+
+*Listener* ini memiliki dua tugas utama:
+1. Membersihkan memori hasil *test* usang sebelum *Test Suite* baru dimulai.
+2. Men- *trigger* eksekusi `portable_report.exe` tepat satu kali di bagian akhir *Test Suite* untuk merender seluruh hasil JSON menjadi satu dokumen PDF lengkap.
 
 ### Tahap 4: Implementasi ke dalam Test Case
-Tulis script pengujian Anda seperti biasa. Gunakan blok try-catch untuk menandai akhir dari pengujian Anda, lalu panggil metode dari helper class Groovy yang sudah dibuat.
+Tulis *script* pengujian Anda dengan rapi. Sistem ini dirancang untuk mendukung gaya penulisan yang bersih (*fluent api style*). Anda bisa langsung menyisipkan fungsi penangkap *screenshot* dan melampirkan statusnya (`.PASSED` / `.FAILED`) tepat setelah tindakan dilakukan di UI.
 
-Screenshot
-```
-	public static void login() {
-		String username = 'standard_user'
-		String password = 'secret_sauce'
-		
-		WebUI.setText(textbox_username, username)
-		PortableReporterScreenshot("Input Username", "standard_user", "Text username terisi").PASSED
+Berikut adalah contoh implementasinya pada fungsi `login`:
 
-		WebUI.setText(textbox_password, password)
-		PortableReporterScreenshot("Input Password", "secret_sauce", "Text password terisi").PASSED
+```groovy
+public static void login() {
+    String username = 'standard_user'
+    String password = 'secret_sauce'
+    
+    // 1. Input Username & Rekam Bukti
+    WebUI.setText(textbox_username, username)
+    PortableReporterScreenshot("Input Username", "standard_user", "Text username terisi").PASSED
 
-		WebUI.click(btn_login)
-		
-		if (WebUI.verifyElementPresent(dashboard_logo, 5, FailureHandling.OPTIONAL)) {
-			PortableReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
-		} else {
-			PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
-		}
-	}
-```
+    // 2. Input Password & Rekam Bukti
+    WebUI.setText(textbox_password, password)
+    PortableReporterScreenshot("Input Password", "secret_sauce", "Text password terisi").PASSED
 
-Add Result
-```
-   import com.kms.katalon.core.util.KeywordUtil
-   import com.report.PortableReporter
-   
-   try {
-       // ... Logika otomasi klik, input, swipe, dll ...
-       
-       // Jika semua kode di atas sukses:
-       PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
-   } catch (Exception e) {
-       // Jika ada error di tengah jalan:
-       PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
-       KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
-   }
-```
-
-### Selesai! 
-Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
-
-🚫 Konfigurasi Tambahan (.gitignore)
-Jika Anda melakukan push proyek ini ke repositori, pastikan untuk menambahkan file .gitignore agar pustaka Node.js yang berat tidak ikut ter-upload:
-
-Plaintext
-node_modules/
-portable_report.exe
-result.json
-*.pdf
-📄 Lisensi
-Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.
+    // 3. Eksekusi Login
+    WebUI.click(btn_login)
+    
+    // 4. Verifikasi Akhir
+    if (WebUI.verifyElementPresent(dashboard_logo, 5, FailureHandling.OPTIONAL)) {
+        PortableReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
+    } else {
+        PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
+    }
+}

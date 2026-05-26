@@ -24,7 +24,7 @@ Proyek ini dibangun menggunakan **Node.js (jsPDF)** dan bertindak sebagai jembat
 2. Salin *file* `portable_report.exe` yang ada di repositori ini, lalu letakkan ke dalam folder tersebut.
 
 ### Tahap 2: Gunakan Helper Class (PortableReporter)
-Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **salin *file* `PortableReporter.groovy`** dari repositori ini, lalu letakkan ke dalam folder `Include/scripts/groovy/com/report/` pada proyek Katalon Anda.
+Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **salin *file* `PortableReporter.groovy`** dari repositori ini, lalu letakkan ke dalam folder `Include/scripts/groovy/(default package)` pada proyek Katalon Anda.
 
 **Penjelasan Fungsi Utama:**
 * **`addTestResult(id, name, status)`**: Fungsi ini bertugas untuk menangkap data hasil akhir dari sebuah *Test Case* (misal: ID Test, Nama Test, dan status `PASSED`/`FAILED`), lalu menyimpannya ke dalam memori antrean sebelum diekspor menjadi file JSON.
@@ -63,5 +63,8 @@ public static void login() {
         PortableReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
     } else {
         PortableReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
+```
+### Selesai! 
+Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses. 
     }
 }

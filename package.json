@@ -1,0 +1,24 @@
+{
+  "name": "portable_report",
+  "version": "1.0.0",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2"
+  },
+  "pkg": {
+    "scripts": [
+      "node_modules/fflate/lib/**/*.cjs",
+      "node_modules/fflate/lib/**/*.js"
+    ]
+  }
+}

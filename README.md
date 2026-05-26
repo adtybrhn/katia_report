@@ -34,9 +34,6 @@ Build aplikasi menjadi executable (.exe):
 ### Tahap 2: Buat Helper Class di Scripts Groovy
 Buat folder dan file Groovy baru di direktori Include/scripts/groovy/com/report/PortableReporter.groovy. Class murni ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
 
-   Groovy
-   package com.report
-   
    import com.kms.katalon.core.configuration.RunConfiguration
    import groovy.json.JsonOutput
    

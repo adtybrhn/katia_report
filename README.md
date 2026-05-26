@@ -29,58 +29,59 @@ Langkah ini hanya perlu dilakukan sekali untuk mengubah *script* JS menjadi apli
    npm install jspdf jspdf-autotable commander
 Build aplikasi menjadi executable (.exe):
 
-Bash
-npx pkg . --targets node18-win-x64 --output portable_report.exe
-Tahap 2: Buat Helper Class di Scripts Groovy
+   Bash
+   npx pkg . --targets node18-win-x64 --output portable_report.exe
+
+### Tahap 2: Buat Helper Class di Scripts Groovy
 Buat folder dan file Groovy baru di direktori Include/scripts/groovy/com/report/PortableReporter.groovy. Class murni ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
 
-Groovy
-package com.report
-
-import com.kms.katalon.core.configuration.RunConfiguration
-import groovy.json.JsonOutput
-
-class PortableReporter {
-    static List<Map<String, Object>> testResults = []
-
-    def static addTestResult(String id, String name, String status) {
-        testResults.add([
-            "id": id,
-            "name": name,
-            "status": status,
-            "steps": [] // Opsional: Tambahkan logika untuk menangkap log langkah & screenshot
-        ])
-    }
-
-    def static generatePDFReport() {
-        String projectDir = RunConfiguration.getProjectDir()
-        String testId = testResults.isEmpty() ? "TC" : testResults.get(0).id.toString().replaceAll("[^a-zA-Z0-9]", "_")
-        String baseName = testResults.isEmpty() ? "Report" : testResults.get(0).name.toString().replaceAll("[^a-zA-Z0-9]", "_")
-        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss"))
-        String dynamicFileName = "${testId}_${baseName}_${timestamp}.pdf"
-
-        def reportData = [
-            "projectName": "Automation QA System",
-            "framework": "Katalon Studio",
-            "platform": "Hybrid (Web & Mobile)",
-            "testDate": java.time.LocalDate.now().toString(),
-            "summary": [
-                "total": testResults.size(),
-                "passed": testResults.count { it.status == 'PASSED' },
-                "failed": testResults.count { it.status == 'FAILED' }
-            ],
-            "results": testResults
-        ]
-
-        File jsonFile = new File(projectDir + "/portable_report/result.json")
-        jsonFile.write(JsonOutput.toJson(reportData))
-
-        def pb = new ProcessBuilder(projectDir + "/portable_report/portable_report.exe", "-i", "result.json", "-o", dynamicFileName)
-        pb.directory(new File(projectDir + "/portable_report"))
-        pb.start().waitFor()
-        println("[V] Laporan PDF Dibuat: " + dynamicFileName)
-    }
-}
+   Groovy
+   package com.report
+   
+   import com.kms.katalon.core.configuration.RunConfiguration
+   import groovy.json.JsonOutput
+   
+   class PortableReporter {
+       static List<Map<String, Object>> testResults = []
+   
+       def static addTestResult(String id, String name, String status) {
+           testResults.add([
+               "id": id,
+               "name": name,
+               "status": status,
+               "steps": [] // Opsional: Tambahkan logika untuk menangkap log langkah & screenshot
+           ])
+       }
+   
+       def static generatePDFReport() {
+           String projectDir = RunConfiguration.getProjectDir()
+           String testId = testResults.isEmpty() ? "TC" : testResults.get(0).id.toString().replaceAll("[^a-zA-Z0-9]", "_")
+           String baseName = testResults.isEmpty() ? "Report" : testResults.get(0).name.toString().replaceAll("[^a-zA-Z0-9]", "_")
+           String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss"))
+           String dynamicFileName = "${testId}_${baseName}_${timestamp}.pdf"
+   
+           def reportData = [
+               "projectName": "Automation QA System",
+               "framework": "Katalon Studio",
+               "platform": "Hybrid (Web & Mobile)",
+               "testDate": java.time.LocalDate.now().toString(),
+               "summary": [
+                   "total": testResults.size(),
+                   "passed": testResults.count { it.status == 'PASSED' },
+                   "failed": testResults.count { it.status == 'FAILED' }
+               ],
+               "results": testResults
+           ]
+   
+           File jsonFile = new File(projectDir + "/portable_report/result.json")
+           jsonFile.write(JsonOutput.toJson(reportData))
+   
+           def pb = new ProcessBuilder(projectDir + "/portable_report/portable_report.exe", "-i", "result.json", "-o", dynamicFileName)
+           pb.directory(new File(projectDir + "/portable_report"))
+           pb.start().waitFor()
+           println("[V] Laporan PDF Dibuat: " + dynamicFileName)
+       }
+   }
 Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
 Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite selesai, buat file ReportingListener.groovy di folder Test Listeners.
 

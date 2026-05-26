@@ -30,10 +30,10 @@ Langkah ini hanya perlu dilakukan sekali untuk mengubah *script* JS menjadi apli
 Build aplikasi menjadi executable (.exe):
    ```Bash
    npx pkg . --targets node18-win-x64 --output portable_report.exe
-
+   ```
 ### Tahap 2: Buat Helper Class di Scripts Groovy
 Buat folder dan file Groovy baru di direktori Include/scripts/groovy/com/report/PortableReporter.groovy. Class murni ini bertugas menangkap data dari Katalon dan menyimpannya menjadi file result.json agar bisa dibaca oleh engine.
-
+   ```
    import com.kms.katalon.core.configuration.RunConfiguration
    import groovy.json.JsonOutput
    
@@ -78,43 +78,47 @@ Buat folder dan file Groovy baru di direktori Include/scripts/groovy/com/report/
            println("[V] Laporan PDF Dibuat: " + dynamicFileName)
        }
    }
-Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
+   ```
+### Tahap 3: Pasang Test Listener (Otomatisasi Laporan)
 Agar laporan dirender otomatis setelah semua pengujian di dalam Test Suite selesai, buat file ReportingListener.groovy di folder Test Listeners.
+```
+   import com.kms.katalon.core.annotation.BeforeTestSuite
+   import com.kms.katalon.core.annotation.AfterTestSuite
+   import com.kms.katalon.core.context.TestSuiteContext
+   import com.report.PortableReporter
+   
+   class ReportingListener {
+       @BeforeTestSuite
+       def clearOldData(TestSuiteContext testSuiteContext) {
+           PortableReporter.testResults.clear() // Bersihkan sisa tes sebelumnya
+       }
+   
+       @AfterTestSuite
+       def generateFinalReport(TestSuiteContext testSuiteContext) {
+           PortableReporter.generatePDFReport() // Cetak PDF gabungan
+       }
+   }
+```
 
-Groovy
-import com.kms.katalon.core.annotation.BeforeTestSuite
-import com.kms.katalon.core.annotation.AfterTestSuite
-import com.kms.katalon.core.context.TestSuiteContext
-import com.report.PortableReporter
-
-class ReportingListener {
-    @BeforeTestSuite
-    def clearOldData(TestSuiteContext testSuiteContext) {
-        PortableReporter.testResults.clear() // Bersihkan sisa tes sebelumnya
-    }
-
-    @AfterTestSuite
-    def generateFinalReport(TestSuiteContext testSuiteContext) {
-        PortableReporter.generatePDFReport() // Cetak PDF gabungan
-    }
-}
-Tahap 4: Implementasi ke dalam Test Case
+### Tahap 4: Implementasi ke dalam Test Case
 Tulis script pengujian Anda seperti biasa. Gunakan blok try-catch untuk menandai akhir dari pengujian Anda, lalu panggil metode dari helper class Groovy yang sudah dibuat.
 
-Groovy
-import com.kms.katalon.core.util.KeywordUtil
-import com.report.PortableReporter
+```
+   import com.kms.katalon.core.util.KeywordUtil
+   import com.report.PortableReporter
+   
+   try {
+       // ... Logika otomasi klik, input, swipe, dll ...
+       
+       // Jika semua kode di atas sukses:
+       PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
+   } catch (Exception e) {
+       // Jika ada error di tengah jalan:
+       PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
+       KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
+   }
+```
 
-try {
-    // ... Logika otomasi klik, input, swipe, dll ...
-    
-    // Jika semua kode di atas sukses:
-    PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
-} catch (Exception e) {
-    // Jika ada error di tengah jalan:
-    PortableReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
-    KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
-}
 Selesai! Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
 
 🚫 Konfigurasi Tambahan (.gitignore)

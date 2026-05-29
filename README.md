@@ -97,12 +97,12 @@ Pastikan Anda sudah memiliki file result.json (bisa didapatkan dari sisa eksekus
 
 Buka Terminal / CMD di dalam folder tersebut.
 
-Pilihan A (Test Executable): Untuk melihat hasil dari .exe saat ini, jalankan:
+### Pilihan A (Test Executable): Untuk melihat hasil dari .exe saat ini, jalankan:
 
 ```Bash
-katia-report.exe -i result.json -o debug_report.pdf
+./katia-report.exe -i result.json -o debug_report.pdf
 ```
-Pilihan B (Test Script - Sangat disarankan untuk Developer): Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
+### Pilihan B (Test Script - Sangat disarankan untuk Developer): Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
 
 ```Bash
 node index.js -i result.json -o debug_report.pdf

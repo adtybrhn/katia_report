@@ -80,3 +80,36 @@ try {
 ```
 ### Selesai!
 Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
+
+## 🔧 Cara Kustomisasi & Build Ulang Engine (Advanced)
+Jika Anda adalah seorang pengembang yang ingin memodifikasi tampilan PDF (seperti mengganti warna tema perusahaan, menyesuaikan margin, atau mengubah logika peletakan gambar), Anda dapat mengedit source code Node.js dan membungkusnya ulang (re-package) menjadi aplikasi mandiri yang baru.
+
+Langkah-langkah:
+Persiapan Lingkungan: Pastikan Anda telah menginstal Node.js (versi 18 atau lebih baru) di komputer Anda.
+
+Unduh Source Code: Kloning atau unduh file index.js dan package.json dari repositori ini, letakkan di dalam folder kosong.
+
+Instal Pustaka Pendukung: Buka terminal (CMD / Git Bash) di dalam folder tersebut, lalu jalankan perintah:
+
+```Bash
+npm install
+```
+Modifikasi Kode: Buka file index.js menggunakan code editor pilihan Anda (seperti VS Code). Anda bebas menyesuaikan array warna pada variabel primaryColor, mengatur logika auto-scaling dimensi gambar, mengubah font, dll.
+
+Kompilasi Ulang (Package): Setelah Anda puas dengan perubahannya, jalankan perintah pkg berikut di terminal untuk menyatukan script dan Node.js ke dalam satu file .exe:
+
+```Bash
+npx pkg . --targets node18-win-x64 --output katia-report.exe
+```
+Implementasi: Ganti file katia-report.exe yang lama di folder proyek Katalon Anda dengan file .exe yang baru saja selesai di-build. Selesai!
+
+## 🚫 Konfigurasi Tambahan (.gitignore)
+Jika Anda menggabungkan engine ini ke dalam repositori GitHub proyek Katalon Anda, pastikan untuk menambahkan file .gitignore dengan format berikut agar file sampah hasil generate tidak ikut ter-upload berulang kali:
+
+Plaintext
+result.json
+*.pdf
+(Catatan: katia-report.exe tetap dibiarkan ter-upload agar rekan tim Anda yang melakukan clone proyek bisa langsung menggunakan engine tersebut).
+
+## 📄 Lisensi
+Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.

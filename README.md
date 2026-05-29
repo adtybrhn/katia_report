@@ -31,7 +31,7 @@ Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **sa
 * **Fungsi Tangkapan Layar (Screenshot)**: Sistem ini mendukung perekaman langkah visual. Di dalam helper class, terdapat *method* khusus yang dapat diisi dengan nama tindakan (*action*), data input, harapan (*expected result*), dan statusnya (sukses/gagal). *Engine* akan membaca *path* *screenshot* tersebut secara otomatis dan merendernya ke dalam PDF dengan proporsi yang presisi.
 
 ### Tahap 3: Pasang Test Listener
-Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `ReportingListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
+Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `KatiaListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
 
 *Listener* ini memiliki dua tugas utama:
 1. Membersihkan memori hasil *test* usang sebelum *Test Suite* baru dimulai.

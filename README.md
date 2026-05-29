@@ -66,51 +66,57 @@ try {
 ### Selesai!
 Sekarang, cukup jalankan pengujian Anda menggunakan fitur Test Suite di Katalon, dan rasakan keajaiban laporan PDF yang muncul secara otomatis di akhir proses.
 
-## 🔧 Cara Kustomisasi & Build Ulang Engine (Advanced)
-Jika Anda adalah seorang pengembang yang ingin memodifikasi tampilan PDF (seperti mengganti warna tema perusahaan, menyesuaikan margin, atau mengubah logika peletakan gambar), Anda dapat mengedit source code Node.js dan membungkusnya ulang (re-package) menjadi aplikasi mandiri yang baru.
+### 🔧 Cara Kustomisasi & Build Ulang Engine (Advanced)
+Jika Anda adalah seorang pengembang yang ingin memodifikasi tampilan PDF (seperti mengganti warna tema perusahaan atau mengubah logika peletakan gambar), Anda dapat mengedit source code Node.js dan membungkusnya ulang.
 
-Langkah-langkah:
-Persiapan Lingkungan: Pastikan Anda telah menginstal Node.js (versi 18 atau lebih baru) di komputer Anda.
+Kloning/unduh file index.js dan package.json dari repositori ini ke dalam sebuah folder kosong.
 
-Unduh Source Code: Kloning atau unduh file index.js dan package.json dari repositori ini, letakkan di dalam folder kosong.
+Buka terminal di folder tersebut, lalu jalankan npm install.
 
-Instal Pustaka Pendukung: Buka terminal (CMD / Git Bash) di dalam folder tersebut, lalu jalankan perintah:
+Buka file index.js menggunakan code editor dan modifikasi script sesuai keinginan.
 
-```Bash
-npm install
+Kompilasi ulang menjadi executable dengan perintah pkg sesuai OS Anda:
+
+Untuk Windows:
+
 ```
-Modifikasi Kode: Buka file index.js menggunakan code editor pilihan Anda (seperti VS Code). Anda bebas menyesuaikan array warna pada variabel primaryColor, mengatur logika auto-scaling dimensi gambar, mengubah font, dll.
-
-Kompilasi Ulang (Package): Setelah Anda puas dengan perubahannya, jalankan perintah pkg berikut di terminal untuk menyatukan script dan Node.js ke dalam satu file .exe:
-
-```Bash
-npx pkg . --targets node18-win-x64 --output katia-report.exe
+Bash
+    npx pkg . --targets node18-win-x64 --output katia-report.exe
 ```
-Implementasi: Ganti file katia-report.exe yang lama di folder proyek Katalon Anda dengan file .exe yang baru saja selesai di-build. Selesai!
+   * **Untuk macOS (Intel):**
+```Bash
+    npx pkg . --targets node18-macos-x64 --output katia-report-mac
+```
+   * **Untuk macOS (Apple Silicon M1/M2/M3):**
+```Bash
+    npx pkg . --targets node18-macos-arm64 --output katia-report-mac-arm
+```
+
+---
 
 ### 🐞 Cara Debugging Report (Tanpa Katalon)
-Menjalankan Test Case UI berkali-kali di Katalon hanya untuk melihat perubahan layout/desain PDF tentu sangat lambat dan membuang waktu.
+Karena Katia-Report bekerja dengan membaca *file* JSON, Anda bisa melakukan *debugging* tata letak (layout) secara instan melalui Terminal tanpa perlu menjalankan ulang *Test Case* UI di Katalon berulang kali.
 
-Karena Katia-Report bekerja dengan membaca file JSON, Anda bisa melakukan debugging tata letak secara instan melalui Command Line:
-
-Pastikan Anda sudah memiliki file result.json (bisa didapatkan dari sisa eksekusi Katalon sebelumnya) dan letakkan di folder yang sama dengan katia-report.exe atau index.js.
-
-Buka Terminal / CMD di dalam folder tersebut.
-
-### Pilihan A (Test Executable): 
-Untuk melihat hasil dari .exe saat ini, jalankan:
-
+1. Pastikan Anda memiliki *file* `result.json` (bisa didapatkan dari sisa eksekusi Katalon sebelumnya) dan letakkan di folder yang sama dengan *executable* Katia-Report.
+2. Buka Terminal (macOS/Linux) atau Git Bash (Windows) di dalam folder tersebut.
+3. **Jika Anda Menggunakan Windows (.exe):**
 ```Bash
-./katia-report.exe -i result.json -o debug_report.pdf
+    ./katia-report.exe -i result.json -o debug_report.pdf
 ```
-### Pilihan B (Test Script - Sangat disarankan untuk Developer): 
-Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
+Jika Anda Menggunakan macOS:
+Di macOS, Anda harus memberikan izin eksekusi pada file tersebut terlebih dahulu sebelum menjalankannya:
 
 ```Bash
-node index.js -i result.json -o debug_report.pdf
+   chmod +x katia-report-mac
+   ./katia-report-mac -i result.json -o debug_report.pdf
+```
+Jika Anda Developer Node.js (Tanpa Kompilasi):
+Saat sedang mengedit kode index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script-nya langsung:
+
+```Bash
+   node index.js -i result.json -o debug_report.pdf
 ```
 Buka debug_report.pdf untuk melihat apakah perbaikan desain Anda sudah pas!
 
-
-## 📄 Lisensi
+### 📄 Lisensi
 Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.

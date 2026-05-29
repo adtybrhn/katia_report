@@ -1,0 +1,26 @@
+{
+  "projectName": "Katia Report Debugging",
+  "framework": "Katalon Studio",
+  "platform": "Hybrid (Web & Mobile)",
+  "testDate": "2026-05-29",
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "TC-DEBUG-01",
+      "name": "Test Rendering Engine",
+      "status": "PASSED",
+      "steps": [
+        {
+          "action": "Memeriksa Engine Node.js",
+          "data": "Menjalankan katia-report.exe",
+          "expected": "PDF berhasil di-generate",
+          "status": "PASSED"
+        }
+      ]
+    }
+  ]
+}

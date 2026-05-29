@@ -31,7 +31,7 @@ Untuk mempermudah integrasi, Anda tidak perlu menulis kode dari awal. Cukup **sa
 * **Fungsi Tangkapan Layar (Screenshot)**: Sistem ini mendukung perekaman langkah visual. Di dalam helper class, terdapat *method* khusus yang dapat diisi dengan nama tindakan (*action*), data input, harapan (*expected result*), dan statusnya (sukses/gagal). *Engine* akan membaca *path* *screenshot* tersebut secara otomatis dan merendernya ke dalam PDF dengan proporsi yang presisi.
 
 ### Tahap 3: Pasang Test Listener
-Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `ReportingListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
+Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin *file* `KatiaListener.groovy`** dari repositori ini dan letakkan di dalam folder `Test Listeners` di Katalon Anda.
 
 *Listener* ini memiliki dua tugas utama:
 1. Membersihkan memori hasil *test* usang sebelum *Test Suite* baru dimulai.
@@ -97,12 +97,12 @@ Pastikan Anda sudah memiliki file result.json (bisa didapatkan dari sisa eksekus
 
 Buka Terminal / CMD di dalam folder tersebut.
 
-Pilihan A (Test Executable): Untuk melihat hasil dari .exe saat ini, jalankan:
+### Pilihan A (Test Executable): Untuk melihat hasil dari .exe saat ini, jalankan:
 
 ```Bash
-katia-report.exe -i result.json -o debug_report.pdf
+./katia-report.exe -i result.json -o debug_report.pdf
 ```
-Pilihan B (Test Script - Sangat disarankan untuk Developer): Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
+### Pilihan B (Test Script - Sangat disarankan untuk Developer): Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
 
 ```Bash
 node index.js -i result.json -o debug_report.pdf

@@ -40,42 +40,27 @@ Agar PDF dapat dicetak secara otomatis setelah semua pengujian selesai, **salin 
 ### Tahap 4: Implementasi ke dalam Test Case
 Tulis *script* pengujian Anda dengan rapi. Sistem ini dirancang untuk mendukung gaya penulisan yang bersih (*fluent api style*). Anda bisa langsung menyisipkan fungsi penangkap *screenshot* dan melampirkan statusnya (`.PASSED` / `.FAILED`) tepat setelah tindakan dilakukan di UI.
 
-Berikut adalah contoh implementasinya pada fungsi `login`:
+Berikut adalah contoh implementasinya`:
 
-```Groovy
-public static void login() {
-    String username = 'standard_user'
-    String password = 'secret_sauce'
-    
-    // 1. Input Username & Rekam Bukti
-    WebUI.setText(textbox_username, username)
-    KatiaReporterScreenshot("Input Username", "standard_user", "Text username terisi").PASSED
-
-    // 2. Input Password & Rekam Bukti
-    WebUI.setText(textbox_password, password)
-    KatiaReporterScreenshot("Input Password", "secret_sauce", "Text password terisi").PASSED
-
-    // 3. Eksekusi Login
-    WebUI.click(btn_login)
-    
-    // 4. Verifikasi Akhir
-    if (WebUI.verifyElementPresent(dashboard_logo, 5, FailureHandling.OPTIONAL)) {
-        KatiaReporterScreenshot("Berhasil Login", "", "Masuk ke halaman dashboard").PASSED
-    } else {
-        KatiaReporterScreenshot("Gagal Login", "", "Gagal Masuk ke halaman dashboard").FAILED
-    }
-}
-```
-Lalu, tambahkan addTestResult di dalam blok eksekusi Test Case Anda untuk mengetahui jumlah hasil yang gagal maupun berhasil:
 ```Groovy
 try {
-    Login.openBrowser()
-    Login.login()
-
-    KatiaReporter.addTestResult("TC-001", "Verifikasi Login Valid", "PASSED")
+    // 1. Eksekusi Langkah Pengujian & Ambil Screenshot
+    WebUI.openBrowser('[https://katalon-demo-cura.herokuapp.com/](https://katalon-demo-cura.herokuapp.com/)')
+    KatiaReporterScreenshot("Buka Web", "URL CURA", "Halaman web terbuka").PASSED
+    
+    // 2. Daftarkan Hasil Akhir Test Case
+    KatiaReporter.addTestResult("TC-001", "Verifikasi Akses Web", "PASSED")
+    
 } catch (Exception e) {
-    KatiaReporter.addTestResult("TC-001", "Verifikasi Login Valid", "FAILED")
+    // Jika Error: Catat screenshot gagal & daftarkan hasil FAILED
+    KatiaReporterScreenshot("Buka Web", "URL CURA", "Gagal membuka halaman").FAILED
+    KatiaReporter.addTestResult("TC-001", "Verifikasi Akses Web", "FAILED")
     KeywordUtil.markFailed("Test Gagal: " + e.getMessage())
+    
+} finally {
+    // 3. Langsung Generate PDF Report di akhir skrip!
+    KatiaReporter.generatePDFReport()
+    WebUI.closeBrowser()
 }
 ```
 ### Selesai!
@@ -102,14 +87,6 @@ Kompilasi Ulang (Package): Setelah Anda puas dengan perubahannya, jalankan perin
 npx pkg . --targets node18-win-x64 --output katia-report.exe
 ```
 Implementasi: Ganti file katia-report.exe yang lama di folder proyek Katalon Anda dengan file .exe yang baru saja selesai di-build. Selesai!
-
-## 🚫 Konfigurasi Tambahan (.gitignore)
-Jika Anda menggabungkan engine ini ke dalam repositori GitHub proyek Katalon Anda, pastikan untuk menambahkan file .gitignore dengan format berikut agar file sampah hasil generate tidak ikut ter-upload berulang kali:
-
-Plaintext
-result.json
-*.pdf
-(Catatan: katia-report.exe tetap dibiarkan ter-upload agar rekan tim Anda yang melakukan clone proyek bisa langsung menggunakan engine tersebut).
 
 ## 📄 Lisensi
 Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.

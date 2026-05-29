@@ -88,5 +88,25 @@ npx pkg . --targets node18-win-x64 --output katia-report.exe
 ```
 Implementasi: Ganti file katia-report.exe yang lama di folder proyek Katalon Anda dengan file .exe yang baru saja selesai di-build. Selesai!
 
+### 🐞 Cara Debugging Report (Tanpa Katalon)
+Menjalankan Test Case UI berkali-kali di Katalon hanya untuk melihat perubahan layout/desain PDF tentu sangat lambat dan membuang waktu.
+
+Karena Katia-Report bekerja dengan membaca file JSON, Anda bisa melakukan debugging tata letak secara instan melalui Command Line:
+
+Pastikan Anda sudah memiliki file result.json (bisa didapatkan dari sisa eksekusi Katalon sebelumnya) dan letakkan di folder yang sama dengan katia-report.exe atau index.js.
+
+Buka Terminal / CMD di dalam folder tersebut.
+
+Pilihan A (Test Executable): Untuk melihat hasil dari .exe saat ini, jalankan:
+
+Bash
+katia-report.exe -i result.json -o debug_report.pdf
+Pilihan B (Test Script - Sangat disarankan untuk Developer): Jika Anda sedang mengedit kode di index.js, Anda tidak perlu melakukan kompilasi (pkg) berulang kali. Cukup eksekusi script Node-nya langsung:
+
+Bash
+node index.js -i result.json -o debug_report.pdf
+Buka debug_report.pdf untuk melihat apakah perbaikan desain Anda sudah pas!
+
+
 ## 📄 Lisensi
 Proyek ini bersifat Open Source di bawah lisensi MIT. Anda bebas menggunakan dan memodifikasinya untuk kebutuhan personal maupun instansi.

@@ -79,8 +79,7 @@ Kompilasi ulang menjadi executable dengan perintah pkg sesuai OS Anda:
 
 Untuk Windows:
 
-```
-Bash
+```Bash
     npx pkg . --targets node18-win-x64 --output katia-report.exe
 ```
    * **Untuk macOS (Intel):**

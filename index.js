@@ -46,7 +46,7 @@ try {
     
     let lampiranToc = null;
     if (hasSteps) {
-        lampiranToc = { title: '3. Lampiran Step & Bukti Gambar', targetPage: 0, level: 0 };
+        lampiranToc = { title: '3. Lampiran Step & Bukti Data', targetPage: 0, level: 0 };
         tocList.push(lampiranToc);
         
         data.results.forEach(test => {
@@ -165,14 +165,14 @@ try {
     });
 
     // ==========================================
-    // TAHAP 4: DETAIL LANGKAH (ATAS-BAWAH, PAS 2 GAMBAR/HALAMAN)
+    // TAHAP 4: DETAIL LANGKAH (SMART WRAP & AUTO PAGINATION)
     // ==========================================
     if (hasSteps) {
         doc.addPage(); 
         lampiranToc.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
         
         doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
-        doc.text(`3. Lampiran Step & Bukti Gambar`, 14, 25);
+        doc.text(`3. Lampiran Step & Bukti Data`, 14, 25);
 
         let currentY = 35; 
 
@@ -191,59 +191,75 @@ try {
                     let base64Data = null;
                     let format = 'PNG';
                     let finalW = 0, finalH = 0, posX = 15;
+                    let hasScreenshotPath = step.screenshot && step.screenshot.trim() !== "";
+                    let imageExists = false;
 
-                    // Kalkulasi dimensi gambar SEBELUM menggambar untuk mendeteksi Page Break yang presisi
-                    if (step.screenshot && fs.existsSync(step.screenshot)) {
+                    // 1. Kalkulasi dimensi gambar (Hanya jika step adalah UI Test dan mengirim path)
+                    if (hasScreenshotPath && fs.existsSync(step.screenshot)) {
+                        imageExists = true;
                         const ext = path.extname(step.screenshot).toLowerCase();
                         format = (ext === '.jpg' || ext === '.jpeg') ? 'JPEG' : 'PNG';
                         base64Data = fs.readFileSync(step.screenshot, 'base64');
                         const imgProps = doc.getImageProperties(base64Data);
                         
                         const maxBoxW = 180;
-                        // Batasi tinggi maksimal ke 95mm (Baik portrait/landscape) agar pasti muat 2 gambar di kertas A4 (297mm)
                         const maxBoxH = (imgProps.height > imgProps.width) ? 95 : 85; 
                         
                         const scale = Math.min(maxBoxW / imgProps.width, maxBoxH / imgProps.height);
                         finalW = imgProps.width * scale;
                         finalH = imgProps.height * scale;
-                        
-                        // Posisikan otomatis di tengah halaman
                         posX = 14 + (maxBoxW - finalW) / 2;
                     }
 
-                    // Menghitung total tinggi blok ini (Teks ~15mm + Gambar)
-                    const stepTotalHeight = 15 + (base64Data ? finalH + 12 : 10);
-                    
-                    // Jika blok ini menabrak batas footer, pindah halaman
-                    if (currentY + stepTotalHeight > 270) { 
-                        doc.addPage(); 
-                        currentY = 25; 
-                    }
-                    
+                    // Pindah halaman jika hampir habis (untuk Judul Langkah)
+                    if (currentY > 265) { doc.addPage(); currentY = 25; }
                     step.tocRef.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
 
-                    // Menggambar Teks Langkah
+                    // 2. Menggambar Judul Langkah
                     doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(...textColor);
                     doc.text(`Langkah ${index + 1}: ${step.action}`, 15, currentY);
                     
                     doc.setTextColor(step.status === 'PASSED' ? passColor[0] : failColor[0], step.status === 'PASSED' ? passColor[1] : failColor[1], step.status === 'PASSED' ? passColor[2] : failColor[2]);
                     doc.text(`[${step.status}]`, 180, currentY);
-                    currentY += 5;
-
-                    doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
-                    doc.text(`Data: ${step.data} | Expected: ${step.expected}`, 15, currentY);
                     currentY += 6;
 
-                    // Menggambar Screenshot (Sudah diposisikan di tengah)
-                    if (base64Data) {
-                        doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.3);
-                        doc.rect(posX, currentY, finalW, finalH); 
-                        doc.addImage(base64Data, format, posX, currentY, finalW, finalH);
-                        currentY += finalH + 12; // Spasi untuk langkah selanjutnya
+                    // 3. Menggambar Data dengan SMART WORD WRAP (Bisa melewati banyak halaman)
+                    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
+                    
+                    const splitDataText = doc.splitTextToSize(`Data: ${step.data || "-"}`, 180);
+                    splitDataText.forEach(line => {
+                        if (currentY > 275) { doc.addPage(); currentY = 25; }
+                        doc.text(line, 15, currentY);
+                        currentY += 5; // Jarak antar baris text
+                    });
+
+                    // 4. Menggambar Expected Result
+                    const splitExpectedText = doc.splitTextToSize(`Expected: ${step.expected || "-"}`, 180);
+                    splitExpectedText.forEach(line => {
+                        if (currentY > 275) { doc.addPage(); currentY = 25; }
+                        doc.text(line, 15, currentY);
+                        currentY += 5;
+                    });
+                    
+                    currentY += 4; // Padding sebelum gambar
+
+                    // 5. Menggambar Screenshot (Jika ada)
+                    if (hasScreenshotPath) {
+                        if (imageExists) {
+                            if (currentY + finalH > 275) { doc.addPage(); currentY = 25; }
+                            doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.3);
+                            doc.rect(posX, currentY, finalW, finalH); 
+                            doc.addImage(base64Data, format, posX, currentY, finalW, finalH);
+                            currentY += finalH + 12; 
+                        } else {
+                            if (currentY > 275) { doc.addPage(); currentY = 25; }
+                            doc.setTextColor(...failColor); doc.setFont("helvetica", "italic");
+                            doc.text(`(Gambar tidak ditemukan pada path: ${step.screenshot})`, 15, currentY);
+                            currentY += 10;
+                        }
                     } else {
-                        doc.setTextColor(...failColor); doc.setFont("helvetica", "italic");
-                        doc.text(`(Gambar tidak ditemukan / Gagal dimuat)`, 15, currentY);
-                        currentY += 10;
+                        // JIKA INI TES API: Biarkan kosong! Jangan cetak error merah.
+                        currentY += 2;
                     }
                 });
                 

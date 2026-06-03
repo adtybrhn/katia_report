@@ -178,7 +178,6 @@ try {
 
         data.results.forEach(test => {
             if (test.steps && test.steps.length > 0) {
-                // Beri ruang untuk header Test Case baru
                 if (currentY > 255) { doc.addPage(); currentY = 25; }
                 test.tocRef.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
 
@@ -194,7 +193,6 @@ try {
                     let hasScreenshotPath = step.screenshot && step.screenshot.trim() !== "";
                     let imageExists = false;
 
-                    // 1. Kalkulasi dimensi gambar (Hanya jika step adalah UI Test dan mengirim path)
                     if (hasScreenshotPath && fs.existsSync(step.screenshot)) {
                         imageExists = true;
                         const ext = path.extname(step.screenshot).toLowerCase();
@@ -211,11 +209,9 @@ try {
                         posX = 14 + (maxBoxW - finalW) / 2;
                     }
 
-                    // Pindah halaman jika hampir habis (untuk Judul Langkah)
                     if (currentY > 265) { doc.addPage(); currentY = 25; }
                     step.tocRef.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
 
-                    // 2. Menggambar Judul Langkah
                     doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(...textColor);
                     doc.text(`Langkah ${index + 1}: ${step.action}`, 15, currentY);
                     
@@ -223,43 +219,82 @@ try {
                     doc.text(`[${step.status}]`, 180, currentY);
                     currentY += 6;
 
-                    // 3. Menggambar Data dengan SMART WORD WRAP (Bisa melewati banyak halaman)
-                    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
-                    
-                    const splitDataText = doc.splitTextToSize(`Data: ${step.data || "-"}`, 180);
-                    splitDataText.forEach(line => {
-                        if (currentY > 275) { doc.addPage(); currentY = 25; }
-                        doc.text(line, 15, currentY);
-                        currentY += 5; // Jarak antar baris text
-                    });
-
-                    // 4. Menggambar Expected Result
-                    const splitExpectedText = doc.splitTextToSize(`Expected: ${step.expected || "-"}`, 180);
-                    splitExpectedText.forEach(line => {
-                        if (currentY > 275) { doc.addPage(); currentY = 25; }
-                        doc.text(line, 15, currentY);
+                    // JIKA UI TEST (Punya Gambar Valid)
+                    if (hasScreenshotPath && imageExists) {
+                        doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textColor);
+                        
+                        doc.text(`Data: ${step.data || "-"}`, 15, currentY);
                         currentY += 5;
-                    });
-                    
-                    currentY += 4; // Padding sebelum gambar
 
-                    // 5. Menggambar Screenshot (Jika ada)
-                    if (hasScreenshotPath) {
-                        if (imageExists) {
-                            if (currentY + finalH > 275) { doc.addPage(); currentY = 25; }
-                            doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.3);
-                            doc.rect(posX, currentY, finalW, finalH); 
-                            doc.addImage(base64Data, format, posX, currentY, finalW, finalH);
-                            currentY += finalH + 12; 
+                        const splitExpectedText = doc.splitTextToSize(`Expected: ${step.expected || "-"}`, 180);
+                        splitExpectedText.forEach(line => {
+                            if (currentY > 275) { doc.addPage(); currentY = 25; }
+                            doc.text(line, 15, currentY);
+                            currentY += 5;
+                        });
+                        currentY += 3; 
+
+                        if (currentY + finalH > 275) { doc.addPage(); currentY = 25; }
+                        doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.3);
+                        doc.rect(posX, currentY, finalW, finalH); 
+                        doc.addImage(base64Data, format, posX, currentY, finalW, finalH);
+                        currentY += finalH + 10; 
+                    } 
+                    
+                    // JIKA API TEST (Format Data Menggunakan Tabel atau Teks)
+                    else {
+                        let isTableData = false;
+                        let tableRows = [];
+                        
+                        // Coba mendeteksi apakah data dari Katalon berformat Array (Tabel)
+                        try {
+                            if (step.data) {
+                                tableRows = JSON.parse(step.data);
+                                if (Array.isArray(tableRows)) {
+                                    isTableData = true;
+                                }
+                            }
+                        } catch (e) {
+                            // Jika gagal di-parse, berarti ini teks biasa
+                        }
+
+                        if (isTableData) {
+                            // Render Tabel Asli
+                            let bodyData = Array.isArray(tableRows[0]) ? tableRows : tableRows.map(r => [r]);
+                            
+                            autoTable(doc, {
+                                startY: currentY + 2,
+                                body: bodyData,
+                                theme: 'grid',
+                                styles: { fontSize: 9, cellPadding: 4, textColor: [60, 60, 60], font: "helvetica", overflow: 'linebreak' },
+                                // Jika array punya 2 nilai per baris, buat kolom kiri lebih sempit & tebal
+                                columnStyles: bodyData[0].length === 2 
+                                    ? { 0: { cellWidth: 42, fontStyle: 'bold', fillColor: [244, 246, 249] }, 1: { cellWidth: 140 } } 
+                                    : { 0: { cellWidth: 182 } },
+                                margin: { left: 14, right: 14 },
+                                tableWidth: 182
+                            });
+                            
+                            // Lanjutkan ke posisi Y terakhir setelah tabel selesai
+                            currentY = doc.lastAutoTable.finalY + 8;
                         } else {
+                            // Fallback jika ternyata teks biasa (non-tabel)
+                            doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
+                            const splitDataText = doc.splitTextToSize(step.data || "-", 180);
+                            splitDataText.forEach(line => {
+                                if (currentY > 275) { doc.addPage(); currentY = 25; }
+                                doc.text(line, 15, currentY);
+                                currentY += 5; 
+                            });
+                            currentY += 4;
+                        }
+
+                        if (hasScreenshotPath && !imageExists) {
                             if (currentY > 275) { doc.addPage(); currentY = 25; }
                             doc.setTextColor(...failColor); doc.setFont("helvetica", "italic");
                             doc.text(`(Gambar tidak ditemukan pada path: ${step.screenshot})`, 15, currentY);
                             currentY += 10;
                         }
-                    } else {
-                        // JIKA INI TES API: Biarkan kosong! Jangan cetak error merah.
-                        currentY += 2;
                     }
                 });
                 
@@ -295,22 +330,6 @@ try {
                 } else if (d.column.index === 1) {
                     d.cell.styles.textColor = level === 2 ? textLight : textColor;
                     d.cell.styles.fontStyle = level === 0 ? 'bold' : 'normal';
-                }
-            }
-        },
-        didDrawCell: function(d) {
-            if (d.section === 'body') {
-                doc.link(d.cell.x, d.cell.y, d.cell.width, d.cell.height, { pageNumber: tocList[d.row.index].targetPage });
-                if (d.column.index === 0) {
-                    const text = tocList[d.row.index].title;
-                    doc.setFont("helvetica", d.cell.styles.fontStyle);
-                    doc.setFontSize(d.cell.styles.fontSize);
-                    const textWidth = doc.getTextWidth(text);
-                    const startX = d.cell.x + textWidth + d.cell.padding('left') + 2; 
-                    const endX = d.cell.x + d.column.width - 2; 
-                    const yPos = d.cell.y + (d.cell.height / 2) + 1.5; 
-                    doc.setTextColor(200, 200, 200); 
-                    for (let x = startX; x < endX; x += 3) { doc.text('.', x, yPos); }
                 }
             }
         }

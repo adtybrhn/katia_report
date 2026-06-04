@@ -67,7 +67,7 @@ try {
         margin: { top: 22, bottom: 20 }, 
         body: tocList.map(item => [item.title, '999']),
         theme: 'plain',
-        styles: { cellPadding: 2.5, fontSize: 10 }
+        styles: { cellPadding: 2.5, fontSize: 9 } 
     });
     const tocPageCount = tempDoc.internal.getNumberOfPages();
 
@@ -80,34 +80,34 @@ try {
     const centerX = 105; 
     let coverY = 85; 
     
-    doc.setFontSize(32); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor);
+    doc.setFontSize(26); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
     doc.text("AUTOMATION TEST REPORT", centerX, coverY, { align: "center" });
     coverY += 15;
     
-    doc.setFontSize(16); doc.setFont("helvetica", "normal"); doc.setTextColor(...textColor); 
+    doc.setFontSize(14); doc.setFont("helvetica", "normal"); doc.setTextColor(...textColor); 
     doc.text(`Project: ${data.projectName}`, centerX, coverY, { align: "center" });
     coverY += 18;
 
-    doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
+    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight); 
     const maxDisplay = 12; 
     
     for (let i = 0; i < data.results.length; i++) {
         if (i >= maxDisplay) {
             doc.setFont("helvetica", "italic");
             doc.text(`... dan ${data.results.length - maxDisplay} test case lainnya.`, centerX, coverY, { align: "center" });
-            coverY += 7;
+            coverY += 6;
             break; 
         }
         const tc = data.results[i];
         doc.text(`[${tc.id}] ${tc.name}`, centerX, coverY, { align: "center" });
-        coverY += 7; 
+        coverY += 6; 
     }
 
     coverY += 10; 
 
-    doc.setFontSize(11); doc.setTextColor(150, 150, 150); doc.setFont("helvetica", "normal");
+    doc.setFontSize(9); doc.setTextColor(150, 150, 150); doc.setFont("helvetica", "normal"); 
     doc.text(`Environment: ${data.platform ? `${data.platform} via ${data.framework}` : data.framework}`, centerX, coverY, { align: "center" });
-    coverY += 6;
+    coverY += 5;
     doc.text(`Generated on: ${data.testDate}`, centerX, coverY, { align: "center" });
 
     // ==========================================
@@ -118,31 +118,31 @@ try {
     summaryToc.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
     detailToc.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
     
-    doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
+    doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
     doc.text(`1. Ringkasan Eksekusi`, 14, 25);
     
     doc.setFillColor(248, 249, 250); doc.roundedRect(14, 30, 58, 24, 2, 2, 'F'); 
     doc.setDrawColor(100, 100, 100); doc.setLineWidth(1.2); doc.line(16, 30, 70, 30); 
-    doc.setFontSize(10); doc.setTextColor(120); doc.setFont("helvetica", "bold");
+    doc.setFontSize(9); doc.setTextColor(120); doc.setFont("helvetica", "bold"); 
     doc.text("TOTAL TEST", 43, 38, { align: "center" });
-    doc.setFontSize(22); doc.setTextColor(...textColor); 
+    doc.setFontSize(18); doc.setTextColor(...textColor); 
     doc.text(`${data.summary.total}`, 43, 49, { align: "center" });
 
     doc.setFillColor(248, 249, 250); doc.roundedRect(76, 30, 58, 24, 2, 2, 'F'); 
     doc.setDrawColor(...passColor); doc.setLineWidth(1.2); doc.line(78, 30, 132, 30); 
-    doc.setFontSize(10); doc.setTextColor(120); 
+    doc.setFontSize(9); doc.setTextColor(120); 
     doc.text("PASSED", 105, 38, { align: "center" });
-    doc.setFontSize(22); doc.setTextColor(...passColor); 
+    doc.setFontSize(18); doc.setTextColor(...passColor); 
     doc.text(`${data.summary.passed}`, 105, 49, { align: "center" });
 
     doc.setFillColor(248, 249, 250); doc.roundedRect(138, 30, 58, 24, 2, 2, 'F'); 
     doc.setDrawColor(...failColor); doc.setLineWidth(1.2); doc.line(140, 30, 194, 30); 
-    doc.setFontSize(10); doc.setTextColor(120); 
+    doc.setFontSize(9); doc.setTextColor(120); 
     doc.text("FAILED", 167, 38, { align: "center" });
-    doc.setFontSize(22); doc.setTextColor(...failColor); 
+    doc.setFontSize(18); doc.setTextColor(...failColor); 
     doc.text(`${data.summary.failed}`, 167, 49, { align: "center" });
 
-    doc.setTextColor(...primaryColor); doc.setFontSize(16); doc.setFont("helvetica", "bold");
+    doc.setTextColor(...primaryColor); doc.setFontSize(14); doc.setFont("helvetica", "bold");
     doc.text(`2. Detail Eksekusi`, 14, 68); 
     
     const tableBody = data.results.map(test => [test.id, test.name, test.status]);
@@ -153,7 +153,7 @@ try {
         theme: 'striped',
         headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' }, 
         alternateRowStyles: { fillColor: [248, 249, 250] },
-        styles: { fontSize: 10, cellPadding: 4, textColor: textColor },
+        styles: { fontSize: 9, cellPadding: 4, textColor: textColor }, 
         margin: { top: 25, bottom: 20 }, 
         showHead: 'firstPage',           
         didParseCell: function(d) {
@@ -171,7 +171,7 @@ try {
         doc.addPage(); 
         lampiranToc.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
         
-        doc.setFontSize(16); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
+        doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
         doc.text(`3. Lampiran Step & Bukti Data`, 14, 25);
 
         let currentY = 35; 
@@ -182,8 +182,8 @@ try {
                 test.tocRef.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
 
                 doc.setFillColor(240, 244, 248); doc.rect(14, currentY - 5, 182, 10, 'F');
-                doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor);
-                doc.text(`Test Case: ${test.id} - ${test.name}`, 16, currentY + 2);
+                doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
+                doc.text(`Test Case: ${test.id} - ${test.name}`, 16, currentY + 1.5);
                 currentY += 12;
 
                 test.steps.forEach((step, index) => {
@@ -212,25 +212,25 @@ try {
                     if (currentY > 265) { doc.addPage(); currentY = 25; }
                     step.tocRef.targetPage = doc.internal.getNumberOfPages() + tocPageCount;
 
-                    doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(...textColor);
+                    doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.setTextColor(...textColor); 
                     doc.text(`Langkah ${index + 1}: ${step.action}`, 15, currentY);
                     
                     doc.setTextColor(step.status === 'PASSED' ? passColor[0] : failColor[0], step.status === 'PASSED' ? passColor[1] : failColor[1], step.status === 'PASSED' ? passColor[2] : failColor[2]);
                     doc.text(`[${step.status}]`, 180, currentY);
                     currentY += 6;
 
-                    // JIKA UI TEST (Punya Gambar Valid)
+                    // JIKA UI TEST
                     if (hasScreenshotPath && imageExists) {
-                        doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textColor);
+                        doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(...textColor); 
                         
                         doc.text(`Data: ${step.data || "-"}`, 15, currentY);
-                        currentY += 5;
+                        currentY += 4.5;
 
                         const splitExpectedText = doc.splitTextToSize(`Expected: ${step.expected || "-"}`, 180);
                         splitExpectedText.forEach(line => {
                             if (currentY > 275) { doc.addPage(); currentY = 25; }
                             doc.text(line, 15, currentY);
-                            currentY += 5;
+                            currentY += 4.5;
                         });
                         currentY += 3; 
 
@@ -241,12 +241,11 @@ try {
                         currentY += finalH + 10; 
                     } 
                     
-                    // JIKA API TEST (Format Data Menggunakan Tabel atau Teks)
+                    // JIKA API TEST
                     else {
                         let isTableData = false;
                         let tableRows = [];
                         
-                        // Coba mendeteksi apakah data dari Katalon berformat Array (Tabel)
                         try {
                             if (step.data) {
                                 tableRows = JSON.parse(step.data);
@@ -254,37 +253,30 @@ try {
                                     isTableData = true;
                                 }
                             }
-                        } catch (e) {
-                            // Jika gagal di-parse, berarti ini teks biasa
-                        }
+                        } catch (e) {}
 
                         if (isTableData) {
-                            // Render Tabel Asli
                             let bodyData = Array.isArray(tableRows[0]) ? tableRows : tableRows.map(r => [r]);
                             
                             autoTable(doc, {
-                                startY: currentY + 2,
+                                startY: currentY + 1,
                                 body: bodyData,
                                 theme: 'grid',
-                                styles: { fontSize: 9, cellPadding: 4, textColor: [60, 60, 60], font: "helvetica", overflow: 'linebreak' },
-                                // Jika array punya 2 nilai per baris, buat kolom kiri lebih sempit & tebal
+                                styles: { fontSize: 8, cellPadding: 4, textColor: [60, 60, 60], font: "helvetica", overflow: 'linebreak' }, 
                                 columnStyles: bodyData[0].length === 2 
                                     ? { 0: { cellWidth: 42, fontStyle: 'bold', fillColor: [244, 246, 249] }, 1: { cellWidth: 140 } } 
                                     : { 0: { cellWidth: 182 } },
                                 margin: { left: 14, right: 14 },
                                 tableWidth: 182
                             });
-                            
-                            // Lanjutkan ke posisi Y terakhir setelah tabel selesai
                             currentY = doc.lastAutoTable.finalY + 8;
                         } else {
-                            // Fallback jika ternyata teks biasa (non-tabel)
-                            doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
+                            doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight); 
                             const splitDataText = doc.splitTextToSize(step.data || "-", 180);
                             splitDataText.forEach(line => {
                                 if (currentY > 275) { doc.addPage(); currentY = 25; }
                                 doc.text(line, 15, currentY);
-                                currentY += 5; 
+                                currentY += 4.5; 
                             });
                             currentY += 4;
                         }
@@ -304,12 +296,12 @@ try {
     }
 
     // ==========================================
-    // TAHAP 5: MENGGAMBAR TOC DI AKHIR DOKUMEN
+    // TAHAP 5: MENGGAMBAR TOC DI AKHIR DOKUMEN (Dengan Dot Leaders & Hyperlink)
     // ==========================================
     const contentEndPage = doc.internal.getNumberOfPages();
     
     doc.addPage(); 
-    doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
+    doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
     doc.text("Table of Contents", 14, 25);
     doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.5); doc.line(14, 30, 196, 30); 
     
@@ -318,7 +310,7 @@ try {
         margin: { top: 22, bottom: 20 }, 
         body: tocList.map(item => [item.title, (item.targetPage - 1).toString()]), 
         theme: 'plain', 
-        styles: { cellPadding: 2.5, fontSize: 10 }, 
+        styles: { cellPadding: 2.5, fontSize: 9 }, 
         columnStyles: { 0: { halign: 'left', cellWidth: 165 }, 1: { halign: 'right', cellWidth: 15 } },
         didParseCell: function(d) {
             if (d.section === 'body') {
@@ -330,6 +322,38 @@ try {
                 } else if (d.column.index === 1) {
                     d.cell.styles.textColor = level === 2 ? textLight : textColor;
                     d.cell.styles.fontStyle = level === 0 ? 'bold' : 'normal';
+                }
+            }
+        },
+        didDrawCell: function(d) {
+            if (d.section === 'body') {
+                const item = tocList[d.row.index];
+                
+                // 1. Gambar Titik-Titik Penghubung (Dot Leaders)
+                if (d.column.index === 0) {
+                    // Ambil baris terakhir dari teks jika terpotong/dibungkus (wrap)
+                    const lastLine = d.cell.text[d.cell.text.length - 1];
+                    const textWidth = doc.getStringUnitWidth(lastLine) * d.cell.styles.fontSize / doc.internal.scaleFactor;
+                    
+                    const startX = d.cell.x + d.cell.padding('left') + textWidth + 3; // Mulai 3mm setelah teks
+                    const endX = d.cell.x + d.cell.width - 2; // Berhenti 2mm sebelum batas kolom
+                    const y = d.cell.y + (d.cell.height / 2) + 1.5; 
+                    
+                    if (startX < endX) {
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.3);
+                        doc.setLineDash([1, 1.5], 0); // Pola garis putus-putus
+                        doc.line(startX, y, endX, y);
+                        doc.setLineDash([], 0); // Reset pola ke garis normal
+                    }
+                }
+                
+                // 2. Tambahkan Tautan (Hyperlink) yang bisa diklik
+                if (d.column.index === 1) {
+                    const rowX = d.row.cells[0].x;
+                    const rowW = d.row.cells[0].width + d.row.cells[1].width;
+                    // doc.link akan membuat seluruh baris daftar isi merespons klik
+                    doc.link(rowX, d.cell.y, rowW, d.cell.height, { pageNumber: item.targetPage });
                 }
             }
         }
@@ -353,13 +377,13 @@ try {
     for (let i = 2; i <= finalTotalPages; i++) {
         doc.setPage(i);
         
-        doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor);
+        doc.setFontSize(7); doc.setFont("helvetica", "bold"); doc.setTextColor(...primaryColor); 
         doc.text("QA AUTOMATION REPORT", 14, 12);
         doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
         doc.text(data.projectName, 196, 12, { align: 'right' });
         doc.setDrawColor(230, 230, 230); doc.setLineWidth(0.3); doc.line(14, 15, 196, 15);
 
-        doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight);
+        doc.setFontSize(7); doc.setFont("helvetica", "normal"); doc.setTextColor(...textLight); 
         doc.text(`Generated: ${data.testDate}`, 14, 287);
         const pageText = `Halaman ${i - 1} dari ${displayTotalPages}`;
         doc.text(pageText, 196, 287, { align: 'right' });

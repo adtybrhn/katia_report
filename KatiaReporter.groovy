@@ -3,7 +3,7 @@ import com.kms.katalon.core.configuration.RunConfiguration
 import groovy.json.JsonOutput
 
 
-public class PortableReporter {
+public class KatiaReporter {
 
 	static List<Map<String, Object>> testResults = new ArrayList<>()
 
@@ -11,7 +11,7 @@ public class PortableReporter {
 	static List<Map<String, String>> currentSteps = new ArrayList<>()
 
 	// FUNGSI AJAIB YANG ANDA MINTA:
-	public static StepRecord PortableReporterScreenshot(String action, String data, String expected) {
+	public static StepRecord KatiaReporterScreenshot(String action, String data, String expected) {
 		return new StepRecord(action, data, expected)
 	}
 
@@ -128,6 +128,6 @@ class StepRecord {
 		step.put("status", status)
 		step.put("screenshot", screenshotPath)
 
-		PortableReporter.currentSteps.add(step)
+		KatiaReporter.currentSteps.add(step)
 	}
 }

@@ -14,19 +14,8 @@ import org.openqa.selenium.WebDriver
 
 public class KatiaReporter {
 
-<<<<<<< HEAD
-public class KatiaReporter {
-
-	static List<Map<String, Object>> testResults = new ArrayList<>()
-
-	// Memori sementara untuk menampung step-step yang berjalan di satu Test Case
 	static List<Map<String, String>> currentSteps = new ArrayList<>()
 
-	// FUNGSI AJAIB YANG ANDA MINTA:
-=======
-	static List<Map<String, String>> currentSteps = new ArrayList<>()
-
->>>>>>> 22d8e4ab639949522b383a6fdf81e7fc8ced015b
 	public static StepRecord KatiaReporterScreenshot(String action, String data, String expected) {
 		return new StepRecord(action, data, expected)
 	}
@@ -171,8 +160,6 @@ class StepRecord {
 		String pngPath = screenshotFolder + "/" + baseFileName + ".png"
 		String finalPath = ""
 
-<<<<<<< HEAD
-=======
 		try {
 			WebDriver nativeDriver = null
 			try {
@@ -211,7 +198,6 @@ class StepRecord {
 		step.put("action", action); step.put("data", data)
 		step.put("expected", expected); step.put("status", status)
 		step.put("screenshot", finalPath)
->>>>>>> 22d8e4ab639949522b383a6fdf81e7fc8ced015b
 		KatiaReporter.currentSteps.add(step)
 	}
 }

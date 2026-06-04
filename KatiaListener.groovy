@@ -1,3 +1,5 @@
+// COMMENT JIKA INGIN GENERATE REPORT MENGGUNAKAN TEST SUITE COLLECTION
+
 import com.kms.katalon.core.annotation.BeforeTestSuite
 import com.kms.katalon.core.annotation.AfterTestSuite
 import com.kms.katalon.core.context.TestSuiteContext
@@ -20,3 +22,5 @@ class KatiaListener {
         KatiaReporter.generatePDFReport()
     }
 }
+
+
